@@ -5,20 +5,15 @@ from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
     QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
     QMenuBar,
-    QGroupBox,
-    QPushButton,
+    QGridLayout,
 )
 from PySide6.QtGui import QAction, QCloseEvent, QIcon
-from PySide6.QtCore import Slot, Qt
 
-from puremote.ui.dialog import RtspDialog, StatusDialog
-from puremote.ui.data_table_view import DataTableView
-from puremote.ui.gl_backend import GlBackend
-from puremote.ui.vlc_backend import VlcBackend
 from puremote.ui.data_monitor import TrialDataMonitor
+from puremote.ui.session_monitor import SessionDataMonitor
+from puremote.ui.monitor import Monitor
+from puremote.ui.plotter_widget import PlotterWidget
 
 
 class MainWindow(QMainWindow):
@@ -30,109 +25,50 @@ class MainWindow(QMainWindow):
         """Init UI layout"""
         self.setWindowTitle("psychounity remote controller")
 
+        self.layout_main = QGridLayout()
+        self.layout_main.setColumnStretch(0, 3)
+        self.layout_main.setColumnStretch(1, 7)
+        self.layout_main.setRowStretch(0, 7)
+        self.layout_main.setRowStretch(1, 3)
         self.widget_main = QWidget()
-        self.layout_main = QVBoxLayout()
-        self.layout_plot_monitor = QHBoxLayout()
-        self.layout_data = QHBoxLayout()
-        self.layout_main.addLayout(self.layout_plot_monitor)
-        self.layout_main.addLayout(self.layout_data)
 
-        self._init_menu()
+        # self._init_menu()
         self._init_plot()
-        self._init_player()
-        self._session_data()
+        self._init_monitor()
+        self._init_session_monitor()
         self._init_data_monitor()
-        # self._init_table_view()
 
         self.widget_main.setLayout(self.layout_main)
         self.setCentralWidget(self.widget_main)
 
-    def _init_menu(self) -> None:
-        menu = QMenuBar()
-        open_menu = menu.addMenu("Open")
-        self.setMenuBar(menu)
+    # def _init_menu(self) -> None:
+    #     menu = QMenuBar()
+    #     open_menu = menu.addMenu("Open")
+    #     self.setMenuBar(menu)
 
-        action_set_rtsp = QAction(QIcon.fromTheme("document-new"), "rtsp", self)
-        action_set_rtsp.triggered.connect(self._rtsp_dialog)
-        open_menu.addAction(action_set_rtsp)
+    #     action_set_rtsp = QAction(QIcon.fromTheme("document-new"), "rtsp", self)
+    #     open_menu.addAction(action_set_rtsp)
 
-        action_set_data_listener = QAction("status", self)
-        open_menu.addAction(action_set_data_listener)
+    #     action_set_data_listener = QAction("status", self)
+    #     open_menu.addAction(action_set_data_listener)
+
+    def _init_plot(self) -> None:
+        plotter = PlotterWidget()
+        self.layout_main.addWidget(plotter, 0, 0)
+
+    def _init_monitor(self) -> None:
+        monitor = Monitor()
+        self.layout_main.addWidget(monitor, 0, 1)
+
+    def _init_session_monitor(self) -> None:
+        session = SessionDataMonitor()
+        self.layout_main.addWidget(session, 1, 0)
 
     def _init_data_monitor(self) -> None:
         self.data_monitor = TrialDataMonitor()
-        self.layout_data.addWidget(self.data_monitor)
-
-    def _rtsp_dialog(self) -> None:
-        dialog = RtspDialog(self)
-        dialog.emit_accepted.connect(self._play_video)
-        dialog.exec()
-
-    def _session_data(self) -> None:
-        button = QPushButton("Add session monitor")
-        layout = QVBoxLayout()
-        layout.addWidget(button)
-        group = QGroupBox("Session")
-        group.setMaximumSize(320, 240)
-        group.setLayout(layout)
-        self.layout_data.addWidget(group)
-
-    def _init_table_view(self) -> None:
-        self.data_table = DataTableView()
-
-        layout = QVBoxLayout()
-        layout.addWidget(self.data_table)
-        group = QGroupBox("Data")
-        group.setMaximumHeight(240)
-        group.setLayout(layout)
-
-        self.layout_main.addWidget(group)
-
-    @Slot(str, str)
-    def _listening(self, address: str, option: str) -> None:
-        self.data_table.init_listener(address, option)
-
-    # Init player ui
-    def _init_player(self) -> None:
-        self.button_rtsp = QPushButton("Connect to CCTV")
-        self.button_rtsp.clicked.connect(self._rtsp_dialog)
-
-        self.player_layout = QVBoxLayout()
-        self.player_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.player_layout.addWidget(self.button_rtsp)
-
-        groupbox = QGroupBox("Monitor")
-        groupbox.setLayout(self.player_layout)
-        groupbox.setMinimumSize(640, 320)
-
-        self.layout_plot_monitor.addWidget(groupbox)
-
-    # Init player and play video
-    @Slot(str, str)
-    def _play_video(self, address: str, backend: str) -> None:
-        self.player_layout.removeWidget(self.button_rtsp)
-
-        if backend == "vlc":
-            self.player = VlcBackend()
-
-        elif backend == "opengl":
-            self.player = GlBackend()
-
-        self.player.set_media(address)
-        self.player_layout.addWidget(self.player)
-        self.player.play()
-
-    def _init_plot(self) -> None:
-        groupbox = QGroupBox("Plot")
-        self.layout_plot = QVBoxLayout()
-        groupbox.setLayout(self.layout_plot)
-        groupbox.setMaximumWidth(320)
-        self.pushbutton_add_plot = QPushButton("Add a figure")
-        self.layout_plot.addWidget(self.pushbutton_add_plot)
-        self.layout_plot_monitor.addWidget(groupbox)
+        self.layout_main.addWidget(self.data_monitor, 1, 1)
 
     def closeEvent(self, event: QCloseEvent) -> None:
-        self.data_table.stop()
         # self.player.stop()
         return super().closeEvent(event)
 

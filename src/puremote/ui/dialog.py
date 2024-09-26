@@ -14,7 +14,7 @@ from PySide6.QtWidgets import (
 from puremote import CONFIG
 
 
-class RtspDialog(QDialog):
+class VideoMontiorDialog(QDialog):
     emit_accepted = Signal(str, str)  # Return rtsp server url and backend type
 
     def __init__(self, parent: QWidget | None = None) -> None:
@@ -88,7 +88,7 @@ class RtspDialog(QDialog):
         self.emit_accepted.emit(address, backend)
 
 
-class StatusDialog(QDialog):
+class DataMontiorDialog(QDialog):
     emit_accept = Signal(str, str)
 
     def __init__(self, parent: QWidget | None = None) -> None:
@@ -157,10 +157,10 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    dialog_address = RtspDialog()
+    dialog_address = VideoMontiorDialog()
     dialog_address.exec()
 
-    dialog_status = StatusDialog()
+    dialog_status = DataMontiorDialog()
     dialog_status.exec()
 
     sys.exit(app.exec())
