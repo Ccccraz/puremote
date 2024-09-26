@@ -1,18 +1,15 @@
-import sys
-import json
+from puremote.env_variable import CONFIG  # noqa: F401
 
+import sys
 from PySide6 import QtWidgets
 
 from puremote.ui.main_view import MainWindow
 
 
 def main() -> None:
-    with open(r"config/default.json", "r") as file:
-        config = json.load(file)
-
     app = QtWidgets.QApplication(sys.argv)
 
-    window = MainWindow(config)
+    window = MainWindow()
     window.show()
 
     sys.exit(app.exec())

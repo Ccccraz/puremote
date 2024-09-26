@@ -1,35 +1,42 @@
-from typing import Dict
+import tomllib
+
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QDialog,
     QLabel,
-    QHBoxLayout,
     QVBoxLayout,
     QDialogButtonBox,
     QComboBox,
     QWidget,
+    QFormLayout,
 )
+
+from puremote import CONFIG
 
 
 class RtspDialog(QDialog):
-    emit_accepted = Signal(str, str)
+    emit_accepted = Signal(str, str)  # Return rtsp server url and backend type
 
-    def __init__(self, parent, config: Dict) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
+        """Dialog for set rtsp server url and backend type
+
+        Args:
+            parent (QWidget): parent widget
+            config (dict): configuration
+        """
         super().__init__(parent)
-        self._config: Dict = config
         self._init_ui()
 
     def _init_ui(self) -> None:
+        """Initialize ui"""
         self.setWindowTitle("Rtsp")
 
         # Main layout of dialog
         self.layout_main = QVBoxLayout()
-        # Layout of dialog component
-        self.layout_address = QHBoxLayout()
-        self.layout_backend = QHBoxLayout()
 
-        self.layout_main.addLayout(self.layout_address)
-        self.layout_main.addLayout(self.layout_backend)
+        self.layout_test = QFormLayout()
+
+        self.layout_main.addLayout(self.layout_test)
         self.setLayout(self.layout_main)
 
         # Create input component
@@ -53,25 +60,27 @@ class RtspDialog(QDialog):
         """
         Create input component
         """
+
+        with open(CONFIG, "rb") as f:
+            config = tomllib.load(f)
+
         label_address = QLabel("Server : ")
         self.combobox_address = QComboBox()
         self.combobox_address.setEditable(True)
 
-        item_list: list = [i for i in self._config["rtsp_server"]]
+        item_list: list = [i for i in config["rtsp_server"]["url"]]
         self.combobox_address.addItems(item_list)
 
         # Add input component to layout
-        self.layout_address.addWidget(label_address)
-        self.layout_address.addWidget(self.combobox_address)
+        self.layout_test.addRow(label_address, self.combobox_address)
 
         label_backend = QLabel("Backend : ")
         self.combobox_backend = QComboBox()
 
-        backend_list: list = ["opengl", "vlc"]
+        backend_list: list = [i for i in config["rtsp_server"]["backend"]]
         self.combobox_backend.addItems(backend_list)
 
-        self.layout_backend.addWidget(label_backend)
-        self.layout_backend.addWidget(self.combobox_backend)
+        self.layout_test.addRow(label_backend, self.combobox_backend)
 
     def _emit_accept(self) -> None:
         address = self.combobox_address.currentText()
@@ -80,11 +89,10 @@ class RtspDialog(QDialog):
 
 
 class StatusDialog(QDialog):
-    emit_accept = Signal(str)
+    emit_accept = Signal(str, str)
 
-    def __init__(self, parent: QWidget, config: Dict) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self._config: Dict = config
         self._init_ui()
 
     def _init_ui(self) -> None:
@@ -92,8 +100,7 @@ class StatusDialog(QDialog):
 
         # Main layout of dialog
         self.layout_main = QVBoxLayout()
-        # Layout of dialog component
-        self.layout_sub = QHBoxLayout()
+        self.layout_sub = QFormLayout()
 
         self.layout_main.addLayout(self.layout_sub)
         self.setLayout(self.layout_main)
@@ -119,34 +126,41 @@ class StatusDialog(QDialog):
         """
         Create input component
         """
+        with open(CONFIG, "rb") as f:
+            config = tomllib.load(f)
+
         label_address = QLabel("Server : ")
         self.combobox_address = QComboBox()
         self.combobox_address.setEditable(True)
 
-        item_list: list = [i for i in self._config["data_monitor"]]
+        item_list: list = [i for i in config["data_monitor"]["url"]]
         self.combobox_address.addItems(item_list)
 
         # Add input component to layout
-        self.layout_sub.addWidget(label_address)
-        self.layout_sub.addWidget(self.combobox_address)
+        self.layout_sub.addRow(label_address, self.combobox_address)
+
+        label_option = QLabel("Server type: ")
+        self.combobox_option = QComboBox()
+        item_list: list = [i for i in config["data_monitor"]["option"]]
+        self.combobox_option.addItems(item_list)
+        self.layout_sub.addRow(label_option, self.combobox_option)
 
     def _emit_accept(self) -> None:
         result = self.combobox_address.currentText()
-        self.emit_accept.emit(result)
+        option = self.combobox_option.currentText()
+        self.emit_accept.emit(result, option)
 
 
-# if __name__ == "__main__":
-#     import json
-#     import sys
+if __name__ == "__main__":
+    import sys
+    from PySide6.QtWidgets import QApplication
 
-#     with open(r"../config/default.json", "r") as file:
-#         config: Dict = json.load(file)
+    app = QApplication(sys.argv)
 
-#     from PySide6.QtWidgets import QApplication
+    dialog_address = RtspDialog()
+    dialog_address.exec()
 
-#     app = QApplication(sys.argv)
+    dialog_status = StatusDialog()
+    dialog_status.exec()
 
-#     widget = RtspDialog(app, config)
-#     widget.show()
-
-#     sys.exit(app.exec())
+    sys.exit(app.exec())

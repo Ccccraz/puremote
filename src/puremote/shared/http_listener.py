@@ -1,36 +1,53 @@
-import time
-import requests
-
-import queue
+import httpx
+from httpx_sse import connect_sse
 
 from loguru import logger
 
 
 class HttpListener:
-    def __init__(self, address: str, queue: queue.Queue) -> None:
+    def __init__(self, address: str) -> None:
         self.url = address
-        self._queue = queue
 
     def stop(self) -> None:
         self.is_running = False
 
-    def listening(self) -> None:
+    def listen(self):
         self.is_running = True
-        previous_count: int = 0
+        previous_id = 0
 
-        logger.info("http listener thread started")
+        logger.info(f"Listening on {self.url}")
 
-        while self.is_running:
-            try:
-                response: requests.Response = requests.get(self.url, timeout=1)
+        with httpx.Client() as client:
+            while self.is_running:
+                try:
+                    response = client.get(self.url)
 
-                data: dict = response.json()
-                count = data["trialCount"]
-                if count != previous_count:
-                    previous_count = count
-                    self._queue.put(data)
+                    data: dict = response.json()
+                    trial_id = data["trialId"]
+                    if trial_id != previous_id:
+                        previous_id = trial_id
+                        yield data
+                except httpx.ConnectError:
+                    logger.error("Server not running")
 
-                time.sleep(3)
 
-            except Exception as e:
-                logger.error(e)
+class HttpListenerSse:
+    def __init__(self, address: str) -> None:
+        self.url = address
+
+    def stop(self) -> None:
+        self.is_running = False
+
+    def listen(self):
+        logger.info(f"Listening on {self.url}")
+        with httpx.Client() as client:
+            with connect_sse(client, "GET", self.url) as event_source:
+                for sse in event_source.iter_sse():
+                    yield sse.json()
+
+
+if __name__ == "__main__":
+    listener = HttpListenerSse("http://localhost:8000/sse")
+
+    for data in listener.listen():
+        print(data)

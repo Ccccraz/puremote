@@ -1,0 +1,11 @@
+[rtsp_server]
+url = ["rtsp://172.20.2.1:4201/live", "rtsp://192.168.31.75:4201/live"]
+backend = ["opengl", "vlc"]
+
+[data_monitor]
+url = [
+    "http://172.20.2.1:4202/api/data",
+    "http://127.0.0.1:4523/m1/4964815-4622925-default/api/data",
+    "http://192.168.31.75:4202/api/data",
+]
+option = ["sse", "polling"]

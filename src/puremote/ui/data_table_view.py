@@ -1,10 +1,7 @@
-from queue import Queue
 import sys
 from threading import Thread
-import time
-from typing import Union
 
-from puremote.shared.http_listener import HttpListener
+from puremote.shared.http_listener import HttpListener, HttpListenerSse
 
 from PySide6.QtCore import (
     Qt,
@@ -29,12 +26,12 @@ class JsonTableModel(QAbstractTableModel):
         self._data = [data] or []
 
     def rowCount(
-        self, parent: Union[QModelIndex, QPersistentModelIndex] = QModelIndex()
+        self, parent: QModelIndex | QPersistentModelIndex = QModelIndex()
     ) -> int:
         return len(self._data) if self._data else 0
 
     def columnCount(
-        self, parent: Union[QModelIndex, QPersistentModelIndex] = QModelIndex()
+        self, parent: QModelIndex | QPersistentModelIndex = QModelIndex()
     ) -> int:
         return len(self._data[0]) if self._data else 0
 
@@ -76,7 +73,7 @@ class JsonTableModel(QAbstractTableModel):
 
 
 class DataTableView(QWidget):
-    received = Signal()
+    received = Signal(dict)
 
     def __init__(self) -> None:
         super().__init__()
@@ -88,71 +85,47 @@ class DataTableView(QWidget):
         self.table.setColumnCount(10)
         self.layout_main.addWidget(self.table)
 
-        self.listener: HttpListener | None = None
+    def init_listener(self, address: str, option: str) -> None:
+        if option == "sse":
+            self.listener = HttpListenerSse(address)
+        elif option == "polling":
+            self.listener = HttpListener(address)
 
-    def init_listener(self, address) -> None:
-        self.data_queue: Queue[Union[dict, None]] = Queue()
-        self.listener = HttpListener(address, self.data_queue)
-
-        self.listening_thread = Thread(target=self.listener.listening)
-        self.listening_thread.start()
-
+        self._listener_thread = Thread(target=self._update_data)
+        self._listener_thread.start()
+        self._is_init = False
         self.received.connect(self._update_view)
-        self.is_init = False
 
-        self.update_thread = Thread(target=self._update_data)
-        self.update_thread.start()
+    def _update_data(self):
+        for data in self.listener.listen():
+            self.received.emit(data)
 
-    def _update_data(self) -> None:
-        self.is_running = True
-        self.reading = False
-        while self.is_running:
-            time.sleep(1)
-            if self.data_queue.empty() is not True and self.reading is not True:
-                self.received.emit()
+    def _update_view(self, data: dict) -> None:
+        if self._is_init is not True:
+            self.layout_main.removeWidget(self.table)
+            self.table.deleteLater()
 
-    def _update_view(self) -> None:
-        self.reading = True
-        data = self.data_queue.get()
-
-        # when data model doesn't initelized and data is not None , init data model
-        if self.is_init is not True and data is not None:
             self.data_model = JsonTableModel(data)
             self.table = QTableView()
             self.table.setModel(self.data_model)
             self.layout_main.addWidget(self.table)
-            self.is_init = True
-
-        # when data model initelized and data is not None , insert new data
-        elif self.is_init and data is not None:
+            self._is_init = True
+        else:
             self.data_model.insert_new_data(data)
             self.table.resizeColumnsToContents()
             self.table.scrollToBottom()
-
-        # when data model initelized and data is None , delete data model
-        elif self.is_init and data is None:
-            self.layout_main.removeWidget(self.table)
-            self.table.deleteLater()
-
-        self.reading = False
 
     def stop(self) -> None:
         if self.listener is not None:
             self.listener.stop()
             self.is_running = False
-            self.data_queue.put(None)
-            self.listening_thread.join()
-            self.update_thread.join()
+            self._listener_thread.join()
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-
-    test = {"age": 10, "name": "nihao"}
-
     window = DataTableView()
+    window.init_listener("http://localhost:8000/sse", "sse")
+
     window.show()
-
-    window.data_model.insert_new_data(test)
-
     sys.exit(app.exec())

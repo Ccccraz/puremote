@@ -18,12 +18,12 @@ from puremote.ui.dialog import RtspDialog, StatusDialog
 from puremote.ui.data_table_view import DataTableView
 from puremote.ui.gl_backend import GlBackend
 from puremote.ui.vlc_backend import VlcBackend
+from puremote.ui.data_monitor import TrialDataMonitor
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, config: dict) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self._config: dict = config
         self._init_ui()
 
     def _init_ui(self) -> None:
@@ -33,12 +33,16 @@ class MainWindow(QMainWindow):
         self.widget_main = QWidget()
         self.layout_main = QVBoxLayout()
         self.layout_plot_monitor = QHBoxLayout()
+        self.layout_data = QHBoxLayout()
         self.layout_main.addLayout(self.layout_plot_monitor)
+        self.layout_main.addLayout(self.layout_data)
 
         self._init_menu()
         self._init_plot()
         self._init_player()
-        self._init_table_view()
+        self._session_data()
+        self._init_data_monitor()
+        # self._init_table_view()
 
         self.widget_main.setLayout(self.layout_main)
         self.setCentralWidget(self.widget_main)
@@ -49,22 +53,29 @@ class MainWindow(QMainWindow):
         self.setMenuBar(menu)
 
         action_set_rtsp = QAction(QIcon.fromTheme("document-new"), "rtsp", self)
-        action_set_rtsp.triggered.connect(self._init_rtsp_dialog)
+        action_set_rtsp.triggered.connect(self._rtsp_dialog)
         open_menu.addAction(action_set_rtsp)
 
         action_set_data_listener = QAction("status", self)
-        action_set_data_listener.triggered.connect(self._init_status_dialog)
         open_menu.addAction(action_set_data_listener)
 
-    def _init_rtsp_dialog(self) -> None:
-        dialog = RtspDialog(self, self._config)
+    def _init_data_monitor(self) -> None:
+        self.data_monitor = TrialDataMonitor()
+        self.layout_data.addWidget(self.data_monitor)
+
+    def _rtsp_dialog(self) -> None:
+        dialog = RtspDialog(self)
         dialog.emit_accepted.connect(self._play_video)
         dialog.exec()
 
-    def _init_status_dialog(self) -> None:
-        dialog = StatusDialog(self, self._config)
-        dialog.emit_accept.connect(self._listening)
-        dialog.exec()
+    def _session_data(self) -> None:
+        button = QPushButton("Add session monitor")
+        layout = QVBoxLayout()
+        layout.addWidget(button)
+        group = QGroupBox("Session")
+        group.setMaximumSize(320, 240)
+        group.setLayout(layout)
+        self.layout_data.addWidget(group)
 
     def _init_table_view(self) -> None:
         self.data_table = DataTableView()
@@ -77,14 +88,14 @@ class MainWindow(QMainWindow):
 
         self.layout_main.addWidget(group)
 
-    @Slot(str)
-    def _listening(self, address: str) -> None:
-        self.data_table.init_listener(address)
+    @Slot(str, str)
+    def _listening(self, address: str, option: str) -> None:
+        self.data_table.init_listener(address, option)
 
     # Init player ui
     def _init_player(self) -> None:
         self.button_rtsp = QPushButton("Connect to CCTV")
-        self.button_rtsp.clicked.connect(self._init_rtsp_dialog)
+        self.button_rtsp.clicked.connect(self._rtsp_dialog)
 
         self.player_layout = QVBoxLayout()
         self.player_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -132,7 +143,7 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    main_window = MainWindow(config)
+    main_window = MainWindow()
     main_window.show()
 
     sys.exit(app.exec())
