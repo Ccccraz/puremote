@@ -1,4 +1,8 @@
+from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout, QPushButton
+
+from puremote.ui.dialog.plotter_dialog import FigurePlotterDialog
+from puremote.ui.plotter import Plotter
 
 
 class PlotterWidget(QWidget):
@@ -8,13 +12,34 @@ class PlotterWidget(QWidget):
 
     def _init_ui(self):
         self.layout_main = QVBoxLayout()
-        self.layout_session = QVBoxLayout()
+        self.setLayout(self.layout_main)
 
+        self.layout_figures = QVBoxLayout()
         group = QGroupBox("figure")
-        group.setLayout(self.layout_session)
+        group.setLayout(self.layout_figures)
         self.layout_main.addWidget(group)
 
         button = QPushButton("add figure")
-        self.layout_session.addWidget(button)
+        button.clicked.connect(self.show_dialog)
+        self.layout_figures.addWidget(button)
 
-        self.setLayout(self.layout_main)
+    def show_dialog(self):
+        dialog = FigurePlotterDialog(self)
+        dialog.emit_accepted.connect(self.add_figure)
+        dialog.exec()
+
+    @Slot(str, str, str, str)
+    def add_figure(self, name: str, data: str, xaxis: str, yaxis: str):
+        print(name, data, xaxis, yaxis)
+        plotter = Plotter()
+        self.layout_figures.insertWidget(self.layout_figures.count() - 1, plotter)
+
+
+if __name__ == "__main__":
+    import sys
+    from PySide6.QtWidgets import QApplication
+
+    app = QApplication(sys.argv)
+    widget = PlotterWidget()
+    widget.show()
+    sys.exit(app.exec())

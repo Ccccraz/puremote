@@ -34,9 +34,9 @@ class VideoMontiorDialog(QDialog):
         # Main layout of dialog
         self.layout_main = QVBoxLayout()
 
-        self.layout_test = QFormLayout()
+        self.layout_input = QFormLayout()
 
-        self.layout_main.addLayout(self.layout_test)
+        self.layout_main.addLayout(self.layout_input)
         self.setLayout(self.layout_main)
 
         # Create input component
@@ -72,7 +72,7 @@ class VideoMontiorDialog(QDialog):
         self.combobox_address.addItems(item_list)
 
         # Add input component to layout
-        self.layout_test.addRow(label_address, self.combobox_address)
+        self.layout_input.addRow(label_address, self.combobox_address)
 
         label_backend = QLabel("Backend : ")
         self.combobox_backend = QComboBox()
@@ -80,7 +80,7 @@ class VideoMontiorDialog(QDialog):
         backend_list: list = [i for i in config["rtsp_server"]["backend"]]
         self.combobox_backend.addItems(backend_list)
 
-        self.layout_test.addRow(label_backend, self.combobox_backend)
+        self.layout_input.addRow(label_backend, self.combobox_backend)
 
     def _emit_accept(self) -> None:
         address = self.combobox_address.currentText()

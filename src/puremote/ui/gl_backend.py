@@ -79,10 +79,10 @@ class GlBackend(QWidget):
 
             if scale_w < w:
                 new_size = QSize(scale_w, h)
-                new_point = QPoint(int(w - scale_w / 2), 0)
+                new_point = QPoint(int((w - scale_w) / 2), 0)
             else:
                 new_size = QSize(w, scale_h)
-                new_point = QPoint(0, int(h - scale_h / 2))
+                new_point = QPoint(0, int((h - scale_h) / 2))
 
             self.viewer.resize(new_size)
             self.viewer.setProperty("pos", new_point)

@@ -1,65 +1,76 @@
-import sys
-import time
-
 import numpy as np
 
+from PySide6.QtCore import Slot, QModelIndex
+from PySide6.QtWidgets import QApplication, QWidget
+
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qtagg import FigureCanvas  # type: ignore
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar  # type: ignore
 from matplotlib.backends.qt_compat import QtWidgets  # type: ignore
-import matplotlib.pyplot as plt
+
+from puremote.ui.trial_data_view import JsonTableModel
 
 
-class Plotter(QtWidgets):
-    def __init__(self, xaxis: str, yaxis: str, data: dict):
-        super().__init__()
-
-
-class ApplicationWindow(QtWidgets.QMainWindow):
+class Plotter(QWidget):
     def __init__(self):
         super().__init__()
-        self._main = QtWidgets.QWidget()
-        self.setCentralWidget(self._main)
-        layout = QtWidgets.QVBoxLayout(self._main)
+        self._init_ui()
 
-        static_canvas = FigureCanvas(Figure(figsize=(5, 3)))
-        # Ideally one would use self.addToolBar here, but it is slightly
-        # incompatible between PyQt6 and other bindings, so we just add the
-        # toolbar as a plain widget instead.
-        layout.addWidget(NavigationToolbar(static_canvas, self))
-        layout.addWidget(static_canvas)
+    def _init_ui(self):
+        layout = QtWidgets.QVBoxLayout()
+        self.setLayout(layout)
 
-        dynamic_canvas = FigureCanvas(Figure(figsize=(5, 3)))
-        layout.addWidget(dynamic_canvas)
-        layout.addWidget(NavigationToolbar(dynamic_canvas, self))
+        self.fig, self.ax = plt.subplots()
+        self.canvas = FigureCanvas(self.fig)
+        layout.addWidget(NavigationToolbar(self.canvas, self))
+        layout.addWidget(self.canvas)
 
-        self._static_ax = static_canvas.figure.subplots()
-        t = np.linspace(0, 10, 501)
-        self._static_ax.plot(t, np.tan(t), ".")
+    def initialize_plot(
+        self, title: str, xlabel: str, ylabel: str, data: JsonTableModel
+    ):
+        self.title = title
+        self.xlabel = xlabel
+        self.ylabel = ylabel
+        self.data = data
 
-        self._dynamic_ax = dynamic_canvas.figure.subplots()
-        t = np.linspace(0, 10, 101)
-        # Set up a Line2D.
-        (self._line,) = self._dynamic_ax.plot(t, np.sin(t + time.time()))
-        self._timer = dynamic_canvas.new_timer(50)
-        self._timer.add_callback(self._update_canvas)
-        self._timer.start()
+        self.data.rowsInserted.connect(self.update_canvas)
 
-    def _update_canvas(self):
-        t = np.linspace(0, 10, 101)
-        # Shift the sinusoid as a function of time.
-        self._line.set_data(t, np.sin(t + time.time()))
-        self._line.figure.canvas.draw()
+        self.xvalue = [item[self.xlabel] for item in self.data._data]
+        self.yvalue = [item[self.ylabel] for item in self.data._data]
+
+        self.ax.set_title(self.title)
+        (self.line,) = self.ax.plot(self.xvalue, self.yvalue)
+
+    @Slot(QModelIndex, int, int)
+    def update_canvas(self, parent: QModelIndex, first: int, last: int):
+        xdata = self.line.get_xdata()
+        ydata = self.line.get_ydata()
+        xdata = np.append(xdata, data._data[first][self.xlabel])
+        ydata = np.append(ydata, data._data[first][self.ylabel])
+
+        self.line.set_data(xdata, ydata)
+
+        self.ax.relim()
+        self.ax.autoscale_view()
+
+        self.line.figure.canvas.draw()  # type: ignore
 
 
 if __name__ == "__main__":
-    # Check whether there is already a running QApplication (e.g., if running
-    # from an IDE).
-    qapp = QtWidgets.QApplication.instance()
-    if not qapp:
-        qapp = QtWidgets.QApplication(sys.argv)
+    import sys
+    import random
+    from tqdm.rich import tqdm
 
-    app = ApplicationWindow()
-    app.show()
-    app.activateWindow()
-    app.raise_()
-    qapp.exec()
+    item_1 = {"x": 1, "y": 2}
+    data = JsonTableModel(item_1)
+
+    for _ in tqdm(range(1000)):
+        data.insert_new_data({"x": random.random(), "y": random.random()})
+
+    app = QApplication(sys.argv)
+
+    widget = Plotter()
+    widget.initialize_plot("title", "x", "y", data)
+    widget.show()
+
+    sys.exit(app.exec())

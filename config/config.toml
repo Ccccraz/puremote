@@ -9,3 +9,9 @@ url = [
     "http://192.168.31.75:4202/api/data",
 ]
 option = ["sse", "polling"]
+
+[plot]
+figures = [
+    { name = "duration", data = "http://localhost:8000/sse", xaxis = "pelletId", yaxis = "test" },
+    { name = "test", data = "http://localhost:8000/sse", xaxis = "hello", yaxis = "test" },
+]

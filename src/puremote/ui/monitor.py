@@ -1,7 +1,7 @@
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QPushButton
 
-from puremote.ui.dialog import VideoMontiorDialog
+from puremote.ui.dialog.dialog_legacy import VideoMontiorDialog
 from puremote.ui.gl_backend import GlBackend
 
 
@@ -26,6 +26,8 @@ class Monitor(QWidget):
     @Slot(str, str)
     def play(self, address: str, backend: str):
         self.layout_video.removeWidget(self.button)
+        self.button.deleteLater()
+
         if backend == "opengl":
             self.player = GlBackend()
 

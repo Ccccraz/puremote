@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QWidget, QGroupBox, QHBoxLayout, QVBoxLayout, QPus
 from PySide6.QtCore import Slot
 
 from puremote.ui.trial_data_view import TrialDataView
-from puremote.ui.dialog import DataMontiorDialog
+from puremote.ui.dialog.dialog_legacy import DataMontiorDialog
 
 
 class TrialDataMonitor(QWidget):
