@@ -23,7 +23,7 @@ class MainWindow(QMainWindow):
 
     def _init_ui(self) -> None:
         """Init UI layout"""
-        self.setWindowTitle("psychounity remote controller")
+        self.setWindowTitle("puremote")
 
         self.layout_main = QGridLayout()
         self.layout_main.setColumnStretch(0, 3)

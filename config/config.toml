@@ -12,6 +12,5 @@ option = ["sse", "polling"]
 
 [plot]
 figures = [
-    { name = "duration", data = "http://localhost:8000/sse", xaxis = "pelletId", yaxis = "test" },
-    { name = "test", data = "http://localhost:8000/sse", xaxis = "hello", yaxis = "test" },
+    { name = "duration", data = "test", xaxis = "pelletId", yaxis = "test" },
 ]

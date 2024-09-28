@@ -28,10 +28,10 @@ class PlotterWidget(QWidget):
         dialog.emit_accepted.connect(self.add_figure)
         dialog.exec()
 
-    @Slot(str, str, str, str)
-    def add_figure(self, name: str, data: str, xaxis: str, yaxis: str):
-        print(name, data, xaxis, yaxis)
+    @Slot(str, str, str)
+    def add_figure(self, data: str, xaxis: str, yaxis: str):
         plotter = Plotter()
+        plotter.initialize_plot(xaxis, yaxis, data)
         self.layout_figures.insertWidget(self.layout_figures.count() - 1, plotter)
 
 
