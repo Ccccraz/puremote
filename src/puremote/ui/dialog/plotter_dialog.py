@@ -57,14 +57,14 @@ class FigurePlotterDialog(QDialog):
         self.layout_main.addWidget(button_box)
 
     def _init_plotter(self):
-        # with open(CONFIG, "rb") as f:
-        #     config = tomllib.load(f)
+        with open(CONFIG, "rb") as f:
+            self.config = tomllib.load(f)
 
         label_data = QLabel("data")
         self.combo_box_data = ComboBox()
         self.combo_box_data.setEditable(True)
         self.combo_box_data.popupAboutToBeShown.connect(self.index_data)
-        self.combo_box_data.activated.connect(self.index_axis)
+        self.combo_box_data.currentTextChanged.connect(self.index_axis)
         self.layout_input.addRow(label_data, self.combo_box_data)
 
         labels_xaxis = QLabel("x axis")
@@ -77,11 +77,8 @@ class FigurePlotterDialog(QDialog):
         self.combo_box_yaxis.setEditable(True)
         self.layout_input.addRow(label_yaxis, self.combo_box_yaxis)
 
-        # for i in config["plot"]["figures"]:
-        #     self.combo_box_name.addItem(i["name"])
-        #     self.combo_box_data.addItem(i["data"])
-        #     self.combo_box_xaxis.addItem(i["xaxis"])
-        #     self.combo_box_yaxis.addItem(i["yaxis"])
+        for i in self.config["plot"]["figures"]:
+            self.combo_box_data.addItem(i["data"])
 
     def _emit_accepted(self):
         """Emit accepted signal with selected data"""
@@ -93,16 +90,30 @@ class FigurePlotterDialog(QDialog):
 
     def index_data(self):
         self.combo_box_data.clear()
+
+        # add preset
+        for i in self.config["plot"]["figures"]:
+            self.combo_box_data.addItem(i["data"])
+
+        # add data address from trialdata
         for i in self.data.data:
             self.combo_box_data.addItem(i)
 
     def index_axis(self):
-        keys = self.data.data[self.combo_box_data.currentText()]._data[0].keys()
         self.combo_box_xaxis.clear()
         self.combo_box_yaxis.clear()
-        for i in keys:
-            self.combo_box_xaxis.addItem(i)
-            self.combo_box_yaxis.addItem(i)
+
+        for i in self.config["plot"]["figures"]:
+            if self.combo_box_data.currentText() == i["data"]:
+                self.combo_box_xaxis.addItem(i["xaxis"])
+                self.combo_box_yaxis.addItem(i["yaxis"])
+
+        if self.data.data != {}:
+            keys = self.data.data[self.combo_box_data.currentText()]._data[0].keys()
+
+            for i in keys:
+                self.combo_box_xaxis.addItem(i)
+                self.combo_box_yaxis.addItem(i)
 
 
 if __name__ == "__main__":
