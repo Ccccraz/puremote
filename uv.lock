@@ -556,6 +556,7 @@ dependencies = [
     { name = "pyside6", marker = "python_full_version >= '3.12'" },
     { name = "python-vlc", marker = "python_full_version >= '3.12'" },
     { name = "requests", marker = "python_full_version >= '3.12'" },
+    { name = "requests-sse", marker = "python_full_version >= '3.12'" },
     { name = "rich", marker = "python_full_version >= '3.12'" },
     { name = "setuptools", marker = "python_full_version >= '3.12'" },
     { name = "sseclient", marker = "python_full_version >= '3.12'" },
@@ -573,6 +574,7 @@ requires-dist = [
     { name = "pyside6", specifier = ">=6.7.2" },
     { name = "python-vlc", specifier = ">=3.0.20123" },
     { name = "requests", specifier = ">=2.32.3" },
+    { name = "requests-sse", specifier = ">=0.3.2" },
     { name = "rich", specifier = ">=13.8.1" },
     { name = "setuptools", specifier = ">=75.1.0" },
     { name = "sseclient", specifier = ">=0.0.27" },
@@ -773,6 +775,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/63/70/2bf7780ad2d390a8d301ad0b550f1581eadbd9a20f896afe06353c2a2913/requests-2.32.3.tar.gz", hash = "sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760", size = 131218 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f9/9b/335f9764261e915ed497fcdeb11df5dfd6f7bf257d4a6a2a686d80da4d54/requests-2.32.3-py3-none-any.whl", hash = "sha256:70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6", size = 64928 },
+]
+
+[[package]]
+name = "requests-sse"
+version = "0.3.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests", marker = "python_full_version >= '3.12'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/2f/38/17d72af6819a3443c1d42a7d02adce430b11e39b03f8273d684385eaa53d/requests_sse-0.3.2.tar.gz", hash = "sha256:3e17bd324e500c9b11c7c23dd00af3f0222070328134bda67a8917985cfc4127", size = 8986 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1e/ba/02926da93761774b633f9b39363782712fe33d6db37e7dda7f63698be70b/requests_sse-0.3.2-py3-none-any.whl", hash = "sha256:c3399b689f6e7bf0eac7c2031211d66ffbb3ab77afc6c9226a71c73c06609f61", size = 9718 },
 ]
 
 [[package]]

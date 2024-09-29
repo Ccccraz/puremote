@@ -104,27 +104,25 @@ class GlBackend(QWidget):
         if self.source is None:
             logger.warning("Video source doesn't setup")
 
-        self.stream = CamGear(source=self.source, colorspace="COLOR_BGR2RGB").start()  # type: ignore
+        # need_init = True
+        # while need_init:
+        #     frame = self.stream.read()
 
-        need_init = True
-        while need_init:
-            frame = self.stream.read()
+        #     if frame is None:
+        #         break
 
-            if frame is None:
-                break
-
-            height, width, channels = frame.shape
-            self.aspect_ratio = width / height
-            QApplication.sendEvent(self, QResizeEvent(self.size(), self.size()))
-            need_init = False
+        #     height, width, channels = frame.shape
+        #     self.aspect_ratio = width / height
+        #     QApplication.sendEvent(self, QResizeEvent(self.size(), self.size()))
+        #     need_init = False
 
         self.play_thread = Thread(target=self._playing)
-
-        self.playing = True
-
         self.play_thread.start()
 
     def _playing(self) -> None:
+        self.stream = CamGear(source=self.source, colorspace="COLOR_BGR2RGB").start()  # type: ignore
+        self.playing = True
+
         while self.playing:
             frame = self.stream.read()
 
