@@ -60,6 +60,7 @@ class FigurePlotterDialog(QDialog):
         with open(CONFIG, "rb") as f:
             self.config = tomllib.load(f)
 
+        # Add Plot data source
         label_data = QLabel("data")
         self.combo_box_data = ComboBox()
         self.combo_box_data.setEditable(True)
@@ -67,16 +68,24 @@ class FigurePlotterDialog(QDialog):
         self.combo_box_data.currentTextChanged.connect(self.index_axis)
         self.layout_input.addRow(label_data, self.combo_box_data)
 
+        # Add x axis data
         labels_xaxis = QLabel("x axis")
         self.combo_box_xaxis = ComboBox()
         self.combo_box_xaxis.setEditable(True)
         self.layout_input.addRow(labels_xaxis, self.combo_box_xaxis)
 
+        # Add y axis data
         label_yaxis = QLabel("y axis")
         self.combo_box_yaxis = ComboBox()
         self.combo_box_yaxis.setEditable(True)
         self.layout_input.addRow(label_yaxis, self.combo_box_yaxis)
 
+        # Add figure type
+        label_type = QLabel("type")
+        self.combo_box_type = ComboBox()
+        self.layout_input.addRow(label_type, self.combo_box_type)
+
+        # Add preset
         for i in self.config["plot"]["figures"]:
             self.combo_box_data.addItem(i["data"])
 
