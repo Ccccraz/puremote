@@ -25,6 +25,7 @@ class Plotter(QWidget):
         layout.addWidget(self.canvas)
 
     def initialize_plot(self, xlabel: str, ylabel: str, data_address: str):
+        # Create a plotter
         self.xlabel = xlabel
         self.ylabel = ylabel
         self.data_address = data_address
@@ -42,6 +43,7 @@ class Plotter(QWidget):
 
     @Slot(QModelIndex, int, int)
     def update_canvas(self, parent: QModelIndex, first: int, last: int):
+        # Update the plot if new data is added
         xdata = self.line.get_xdata()
         ydata = self.line.get_ydata()
         xdata = np.append(
