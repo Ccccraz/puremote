@@ -1,12 +1,11 @@
 import sys
+from queue import Queue
 from threading import Thread
 
 from puremote.shared.http_listener import HttpListener, HttpListenerSse
 from puremote.model.trail_data import TrialDataModel, TrialData
 
-from PySide6.QtCore import (
-    Signal,
-)
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QWidget,
     QTableView,
@@ -17,7 +16,7 @@ from PySide6.QtWidgets import (
 
 
 class TrialDataView(QWidget):
-    received = Signal(dict)
+    received = Signal()
 
     def __init__(self) -> None:
         super().__init__()
@@ -36,6 +35,8 @@ class TrialDataView(QWidget):
         elif option == "polling":
             self.listener = HttpListener(address)
 
+        self.data_queue: Queue = Queue()
+
         self._listener_thread = Thread(target=self._update_data)
         self._listener_thread.start()
         self._is_init = False
@@ -43,9 +44,11 @@ class TrialDataView(QWidget):
 
     def _update_data(self):
         for data in self.listener.listen():
-            self.received.emit(data)
+            self.data_queue.put(data)
+            self.received.emit()
 
-    def _update_view(self, data: dict) -> None:
+    def _update_view(self) -> None:
+        data = self.data_queue.get()
         if self._is_init is not True:
             self.layout_main.removeWidget(self.table)
             self.table.deleteLater()
