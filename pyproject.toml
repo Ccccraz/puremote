@@ -22,7 +22,7 @@ dependencies = [
 ]
 
 [project.scripts]
-main = "puremote:main"
+puremote = "puremote:main"
 
 [build-system]
 requires = ["hatchling"]
