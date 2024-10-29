@@ -5,6 +5,14 @@ puremote is a remote experiment status monitoring software designed based on RES
 ## install
 
 ### install with uv
+
+```bash
+# clone this repo
+git clone https://github.com/Ccccraz/puremote.git
+
+cd puremote
+```
+
 ```bash
 # setup env
 uv sync
@@ -15,7 +23,22 @@ uv run main
 
 ### install with conda
 ```bash
+# clone this repo
+git clone https://github.com/Ccccraz/puremote.git
+
+cd puremote
+```
+
+```bash
 # setup env
+conda create -n puremote python=3.12
+conda activate puremote
+
+# install dependency
+pip install .
+
+# run app
+python ./src/puremote/__init__.py
 ```
 
 # Contribution
