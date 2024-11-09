@@ -1,3 +1,4 @@
+from logging import config
 import tomllib
 
 from PySide6.QtCore import Signal
@@ -10,7 +11,7 @@ from PySide6.QtWidgets import (
     QFormLayout,
 )
 
-from puremote import CONFIG
+from puremote.config.config import get_config
 from puremote.models.trail_data import TrialData
 
 
@@ -57,8 +58,7 @@ class AddFigureDialog(QDialog):
         self.layout_main.addWidget(button_box)
 
     def _init_plotter(self):
-        with open(CONFIG, "rb") as f:
-            self.config = tomllib.load(f)
+        self.config = get_config()
 
         # Add Plot data source
         label_data = QLabel("data")
@@ -86,8 +86,8 @@ class AddFigureDialog(QDialog):
         self.layout_input.addRow(label_type, self.combo_box_type)
 
         # Add preset
-        for i in self.config["plot"]["figures"]:
-            self.combo_box_data.addItem(i["data"])
+        for i in self.config.figure:
+            self.combo_box_data.addItem(i.nickname)
 
     def _emit_accepted(self):
         """Emit accepted signal with selected data"""
@@ -101,8 +101,8 @@ class AddFigureDialog(QDialog):
         self.combo_box_data.clear()
 
         # add preset
-        for i in self.config["plot"]["figures"]:
-            self.combo_box_data.addItem(i["data"])
+        for i in self.config.figure:
+            self.combo_box_data.addItem(i.nickname)
 
         # add data address from trialdata
         for i in self.data.data:
@@ -112,10 +112,10 @@ class AddFigureDialog(QDialog):
         self.combo_box_xaxis.clear()
         self.combo_box_yaxis.clear()
 
-        for i in self.config["plot"]["figures"]:
-            if self.combo_box_data.currentText() == i["data"]:
-                self.combo_box_xaxis.addItem(i["xaxis"])
-                self.combo_box_yaxis.addItem(i["yaxis"])
+        for i in self.config.figure:
+            if self.combo_box_data.currentText() == i.nickname:
+                self.combo_box_xaxis.addItem(i.x_axis)
+                self.combo_box_yaxis.addItem(i.y_axis)
 
         if self.data.data != {}:
             keys = self.data.data[self.combo_box_data.currentText()]._data[0].keys()

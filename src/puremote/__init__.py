@@ -1,5 +1,3 @@
-from puremote.components.config.env_variable import CONFIG  # noqa: F401
-
 import sys
 from PySide6 import QtWidgets
 

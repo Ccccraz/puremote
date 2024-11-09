@@ -1,11 +1,12 @@
 {
-    "rtsp_server": [
-        "rtsp://172.20.2.1:4201/live",
-        "rtsp://192.168.31.75:4201/live"
+    "video_source": {},
+    "video_monitor_backend": [
+        "vlc",
+        "opengl"
     ],
-    "data_monitor": [
-        "http://172.20.2.1:4202/api/data",
-        "http://127.0.0.1:4523/m1/4964815-4622925-default/api/data",
-        "http://192.168.31.75:4202/api/data"
+    "trial_data_source": [],
+    "trial_data_mode": [
+        "polling",
+        "sse"
     ]
 }

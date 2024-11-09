@@ -1,5 +1,3 @@
-import tomllib
-
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QDialog,
@@ -11,7 +9,7 @@ from PySide6.QtWidgets import (
     QFormLayout,
 )
 
-from puremote import CONFIG
+from puremote.config.config import get_config
 
 
 class AddTrialDataDialog(QDialog):
@@ -52,14 +50,14 @@ class AddTrialDataDialog(QDialog):
         """
         Create input component
         """
-        with open(CONFIG, "rb") as f:
-            config = tomllib.load(f)
+
+        config = get_config()
 
         label_address = QLabel("Server : ")
         self.combobox_address = QComboBox()
         self.combobox_address.setEditable(True)
 
-        item_list: list = [i for i in config["data_monitor"]["url"]]
+        item_list: list = [i.values() for i in config.trial_data_source]
         self.combobox_address.addItems(item_list)
 
         # Add input component to layout
@@ -67,7 +65,7 @@ class AddTrialDataDialog(QDialog):
 
         label_option = QLabel("Server type: ")
         self.combobox_option = QComboBox()
-        item_list: list = [i for i in config["data_monitor"]["option"]]
+        item_list: list = [i for i in config.trial_data_mode]
         self.combobox_option.addItems(item_list)
         self.layout_sub.addRow(label_option, self.combobox_option)
 

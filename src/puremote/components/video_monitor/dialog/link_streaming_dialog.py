@@ -1,5 +1,3 @@
-import tomllib
-
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QDialog,
@@ -11,7 +9,7 @@ from PySide6.QtWidgets import (
     QFormLayout,
 )
 
-from puremote import CONFIG
+from puremote.config.config import get_config
 
 
 class LinkStreamingDialog(QDialog):
@@ -61,14 +59,13 @@ class LinkStreamingDialog(QDialog):
         Create input component
         """
 
-        with open(CONFIG, "rb") as f:
-            config = tomllib.load(f)
+        config = get_config()
 
         label_address = QLabel("Server : ")
         self.combobox_address = QComboBox()
         self.combobox_address.setEditable(True)
 
-        item_list: list = [i for i in config["rtsp_server"]["url"]]
+        item_list: list = [i for i in config.video_source.values()]
         self.combobox_address.addItems(item_list)
 
         # Add input component to layout
@@ -77,7 +74,7 @@ class LinkStreamingDialog(QDialog):
         label_backend = QLabel("Backend : ")
         self.combobox_backend = QComboBox()
 
-        backend_list: list = [i for i in config["rtsp_server"]["backend"]]
+        backend_list: list = [i for i in config.video_monitor_backend]
         self.combobox_backend.addItems(backend_list)
 
         self.layout_input.addRow(label_backend, self.combobox_backend)
