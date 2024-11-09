@@ -5,10 +5,9 @@ from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
     QWidget,
-    QMenuBar,
     QGridLayout,
 )
-from PySide6.QtGui import QAction, QCloseEvent, QIcon
+from PySide6.QtGui import QCloseEvent
 
 from puremote.components.trial_monitor.data_monitor_widget import TrialDataMonitor
 from puremote.components.session_monitor.session_monitor_widget import (
