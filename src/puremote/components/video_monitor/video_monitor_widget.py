@@ -1,8 +1,10 @@
-from PySide6.QtCore import Qt, Slot
+from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QPushButton, QHBoxLayout
 
-from puremote.ui.dialog.dialog_legacy import VideoMontiorDialog
-from puremote.ui.gl_backend import GlBackend
+from puremote.components.video_monitor.dialog.link_streaming_dialog import (
+    LinkStreamingDialog,
+)
+from puremote.components.video_monitor.backend.gl_backend import GlBackend
 
 
 class Monitor(QWidget):
@@ -35,7 +37,7 @@ class Monitor(QWidget):
         pass
 
     def show_dialog(self) -> None:
-        dialog = VideoMontiorDialog(self)
+        dialog = LinkStreamingDialog(self)
         dialog.emit_accepted.connect(self.play)
         dialog.exec()
 
@@ -60,7 +62,7 @@ class Backend(QWidget):
             self.video_player = GlBackend()
 
         elif self.backend == "vlc":
-            from puremote.ui.vlc_backend import VlcBackend
+            from puremote.components.video_monitor.backend.vlc_backend import VlcBackend
 
             self.video_player = VlcBackend()
 

@@ -5,7 +5,7 @@ from PySide6.QtCore import (
     QPersistentModelIndex,
 )
 from PySide6.QtGui import QFont
-from puremote.shared.singleton_base import SingletonMeta
+from puremote.shared.base.singleton_base import SingletonMeta
 
 
 class TrialDataModel(QAbstractTableModel):

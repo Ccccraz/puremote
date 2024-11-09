@@ -2,8 +2,8 @@ import sys
 from queue import Queue
 from threading import Thread
 
-from puremote.shared.http_listener import HttpListener, HttpListenerSse
-from puremote.model.trail_data import TrialDataModel, TrialData
+from puremote.shared.web_requests.http_listener import HttpListener, HttpListenerSse
+from puremote.models.trail_data import TrialDataModel, TrialData
 
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (

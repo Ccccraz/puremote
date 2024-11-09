@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
 )
 
 from puremote import CONFIG
-from puremote.model.trail_data import TrialData
+from puremote.models.trail_data import TrialData
 
 
 class ComboBox(QComboBox):
@@ -22,7 +22,7 @@ class ComboBox(QComboBox):
         super(ComboBox, self).showPopup()
 
 
-class FigurePlotterDialog(QDialog):
+class AddFigureDialog(QDialog):
     """Dialog to select a figure to plot"""
 
     emit_accepted = Signal(str, str, str)
@@ -131,7 +131,7 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    dialog = FigurePlotterDialog()
+    dialog = AddFigureDialog()
     dialog.show()
 
     sys.exit(app.exec())

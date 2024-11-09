@@ -1,9 +1,9 @@
-from puremote.env_variable import CONFIG  # noqa: F401
+from puremote.components.config.env_variable import CONFIG  # noqa: F401
 
 import sys
 from PySide6 import QtWidgets
 
-from puremote.ui.main_view import MainWindow
+from puremote.views.main_view import MainWindow
 
 
 def main() -> None:

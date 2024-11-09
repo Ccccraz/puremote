@@ -1,8 +1,10 @@
 from PySide6.QtWidgets import QWidget, QGroupBox, QHBoxLayout, QVBoxLayout, QPushButton
-from PySide6.QtCore import Slot, Signal
+from PySide6.QtCore import Slot
 
-from puremote.ui.trial_data_view import TrialDataView
-from puremote.ui.dialog.dialog_legacy import DataMontiorDialog
+from puremote.components.trial_monitor.data_view.trial_data_view import TrialDataView
+from puremote.components.trial_monitor.dialog.add_trial_data_dialog import (
+    AddTrialDataDialog,
+)
 
 
 class TrialDataMonitor(QWidget):
@@ -32,7 +34,7 @@ class TrialDataMonitor(QWidget):
         self.layout_data.insertWidget(self.layout_data.count() - 1, table)
 
     def show_status(self) -> None:
-        dialog = DataMontiorDialog(self)
+        dialog = AddTrialDataDialog(self)
         dialog.emit_accept.connect(self.add_data)
         dialog.exec()
 

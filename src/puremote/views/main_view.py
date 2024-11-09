@@ -10,10 +10,12 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QAction, QCloseEvent, QIcon
 
-from puremote.ui.data_monitor import TrialDataMonitor
-from puremote.ui.session_monitor import SessionDataMonitor
-from puremote.ui.monitor import Monitor
-from puremote.ui.plotter_widget import PlotterWidget
+from puremote.components.trial_monitor.data_monitor_widget import TrialDataMonitor
+from puremote.components.session_monitor.session_monitor_widget import (
+    SessionDataMonitor,
+)
+from puremote.components.video_monitor.video_monitor_widget import Monitor
+from puremote.components.plotter.plotter_widget import PlotterWidget
 
 
 class MainWindow(QMainWindow):

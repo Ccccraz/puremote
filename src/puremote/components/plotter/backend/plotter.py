@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qtagg import FigureCanvas  # type: ignore
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar  # type: ignore
 
-from puremote.model.trail_data import TrialData, TrialDataModel  # type: ignore
+from puremote.models.trail_data import TrialData, TrialDataModel
 
 
 class Plotter(QWidget):

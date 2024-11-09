@@ -1,8 +1,8 @@
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout, QPushButton
 
-from puremote.ui.dialog.plotter_dialog import FigurePlotterDialog
-from puremote.ui.plotter import Plotter
+from puremote.components.plotter.dialog.add_figure_dialog import AddFigureDialog
+from puremote.components.plotter.backend.plotter import Plotter
 
 
 class PlotterWidget(QWidget):
@@ -24,7 +24,7 @@ class PlotterWidget(QWidget):
         self.layout_figures.addWidget(button)
 
     def show_dialog(self):
-        dialog = FigurePlotterDialog(self)
+        dialog = AddFigureDialog(self)
         dialog.emit_accepted.connect(self.add_figure)
         dialog.exec()
 
