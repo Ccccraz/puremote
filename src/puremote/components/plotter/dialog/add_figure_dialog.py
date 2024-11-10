@@ -1,29 +1,30 @@
-from logging import config
-import tomllib
-
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
-    QDialog,
     QLabel,
     QVBoxLayout,
-    QDialogButtonBox,
-    QComboBox,
     QFormLayout,
 )
 
 from puremote.config.config import get_config
 from puremote.models.trail_data import TrialData
+from qfluentwidgets import (
+    MessageBoxBase,
+    SubtitleLabel,
+    EditableComboBox,
+    BodyLabel,
+)
 
 
-class ComboBox(QComboBox):
+# TODO
+class RefreshComboBox(EditableComboBox):
     popupAboutToBeShown = Signal()
 
     def showPopup(self):
         self.popupAboutToBeShown.emit()
-        super(ComboBox, self).showPopup()
+        super(RefreshComboBox, self).showPopup()
 
 
-class AddFigureDialog(QDialog):
+class AddFigureDialog(MessageBoxBase):
     """Dialog to select a figure to plot"""
 
     emit_accepted = Signal(str, str, str)
@@ -34,55 +35,51 @@ class AddFigureDialog(QDialog):
         self._init_ui()
 
     def _init_ui(self):
-        self.setWindowTitle("Select data to plot")
-        self.layout_main = QVBoxLayout()
+        self.titleLabel = SubtitleLabel(self.tr("Set status server"))
+        self.viewLayout.addWidget(self.titleLabel)
 
+        self.layout_main = QVBoxLayout()
         self.layout_input = QFormLayout()
+
+        self.viewLayout.addLayout(self.layout_main)
 
         self.layout_main.addLayout(self.layout_input)
         self.setLayout(self.layout_main)
 
         self._init_plotter()
 
-        q_dialog_btn = (
-            QDialogButtonBox.StandardButton.Open
-            | QDialogButtonBox.StandardButton.Cancel
-        )
+        self.yesButton.clicked.connect(self._emit_accepted)
+        self.yesButton.clicked.connect(self.accept)
+        self.cancelButton.clicked.connect(self.reject)
 
-        button_box = QDialogButtonBox(q_dialog_btn)
-
-        button_box.accepted.connect(self._emit_accepted)
-        button_box.accepted.connect(self.accept)
-        button_box.rejected.connect(self.reject)
-
-        self.layout_main.addWidget(button_box)
+    def test(self):
+        print("test")
 
     def _init_plotter(self):
         self.config = get_config()
 
         # Add Plot data source
-        label_data = QLabel("data")
-        self.combo_box_data = ComboBox()
-        self.combo_box_data.setEditable(True)
+        label_data = BodyLabel(self.tr("data"))
+        self.combo_box_data = RefreshComboBox()
         self.combo_box_data.popupAboutToBeShown.connect(self.index_data)
+        self.combo_box_data.popupAboutToBeShown.connect(self.test)
         self.combo_box_data.currentTextChanged.connect(self.index_axis)
         self.layout_input.addRow(label_data, self.combo_box_data)
 
         # Add x axis data
-        labels_xaxis = QLabel("x axis")
-        self.combo_box_xaxis = ComboBox()
-        self.combo_box_xaxis.setEditable(True)
+        labels_xaxis = BodyLabel(self.tr("x axis"))
+        self.combo_box_xaxis = RefreshComboBox()
         self.layout_input.addRow(labels_xaxis, self.combo_box_xaxis)
 
         # Add y axis data
         label_yaxis = QLabel("y axis")
-        self.combo_box_yaxis = ComboBox()
-        self.combo_box_yaxis.setEditable(True)
+        label_yaxis = BodyLabel(self.tr("y axis"))
+        self.combo_box_yaxis = RefreshComboBox()
         self.layout_input.addRow(label_yaxis, self.combo_box_yaxis)
 
         # Add figure type
-        label_type = QLabel("type")
-        self.combo_box_type = ComboBox()
+        label_type = BodyLabel(self.tr("type"))
+        self.combo_box_type = RefreshComboBox()
         self.layout_input.addRow(label_type, self.combo_box_type)
 
         # Add preset

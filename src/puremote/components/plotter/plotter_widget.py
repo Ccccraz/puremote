@@ -3,28 +3,35 @@ from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout, QPushButton
 
 from puremote.components.plotter.dialog.add_figure_dialog import AddFigureDialog
 from puremote.components.plotter.backend.plotter import Plotter
+from puremote.components.card.base_card import BaseCard
+
+from qfluentwidgets import PrimaryPushButton
 
 
-class PlotterWidget(QWidget):
-    def __init__(self) -> None:
-        super().__init__()
+class PlotterCard(QWidget):
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent=parent)
         self._init_ui()
+        self.parent_main = parent
 
     def _init_ui(self):
         self.layout_main = QVBoxLayout()
         self.setLayout(self.layout_main)
+        self.layout_main.setContentsMargins(0, 0, 0, 0)
+        self.layout_main.setSpacing(0)
+
+        self.card = BaseCard(self.tr("Figures"))
+        self.layout_main.addWidget(self.card)
 
         self.layout_figures = QVBoxLayout()
-        group = QGroupBox("figure")
-        group.setLayout(self.layout_figures)
-        self.layout_main.addWidget(group)
 
-        button = QPushButton("add figure")
+        button = PrimaryPushButton(self.tr("add figure"))
         button.clicked.connect(self.show_dialog)
-        self.layout_figures.addWidget(button)
+
+        self.card.addFunctionButton([button])
 
     def show_dialog(self):
-        dialog = AddFigureDialog(self)
+        dialog = AddFigureDialog(self.parent_main)
         dialog.emit_accepted.connect(self.add_figure)
         dialog.exec()
 
@@ -32,7 +39,7 @@ class PlotterWidget(QWidget):
     def add_figure(self, data: str, xaxis: str, yaxis: str):
         plotter = Plotter()
         plotter.initialize_plot(xaxis, yaxis, data)
-        self.layout_figures.insertWidget(self.layout_figures.count() - 1, plotter)
+        self.layout_figures.addWidget(plotter)
 
 
 if __name__ == "__main__":
@@ -40,6 +47,6 @@ if __name__ == "__main__":
     from PySide6.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
-    widget = PlotterWidget()
+    widget = PlotterCard()
     widget.show()
     sys.exit(app.exec())

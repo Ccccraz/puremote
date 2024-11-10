@@ -1,18 +1,21 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
-    QDialog,
-    QLabel,
-    QVBoxLayout,
-    QDialogButtonBox,
-    QComboBox,
     QWidget,
     QFormLayout,
 )
 
 from puremote.config.config import get_config
 
+from qfluentwidgets import (
+    MessageBoxBase,
+    SubtitleLabel,
+    EditableComboBox,
+    BodyLabel,
+    ComboBox,
+)
 
-class LinkStreamingDialog(QDialog):
+
+class LinkStreamingDialog(MessageBoxBase):
     emit_accepted = Signal(str, str)  # Return rtsp server url and backend type
 
     def __init__(self, parent: QWidget | None = None) -> None:
@@ -27,32 +30,19 @@ class LinkStreamingDialog(QDialog):
 
     def _init_ui(self) -> None:
         """Initialize ui"""
-        self.setWindowTitle("Rtsp")
 
-        # Main layout of dialog
-        self.layout_main = QVBoxLayout()
+        self.titleLabel = SubtitleLabel(self.tr("Link Streaming"))
+        self.viewLayout.addWidget(self.titleLabel)
 
         self.layout_input = QFormLayout()
 
-        self.layout_main.addLayout(self.layout_input)
-        self.setLayout(self.layout_main)
-
+        self.viewLayout.addLayout(self.layout_input)
         # Create input component
         self._init_rtsp_server()
 
-        # Create standard button box for diglog
-        q_dialog_btn = (
-            QDialogButtonBox.StandardButton.Open
-            | QDialogButtonBox.StandardButton.Cancel
-        )
-        button_box = QDialogButtonBox(q_dialog_btn)
-
-        button_box.accepted.connect(self._emit_accept)
-        button_box.accepted.connect(self.accept)
-        button_box.rejected.connect(self.reject)
-
-        # Add standard button to layout
-        self.layout_main.addWidget(button_box)
+        self.yesButton.clicked.connect(self._emit_accept)
+        self.yesButton.clicked.connect(self.accept)
+        self.cancelButton.clicked.connect(self.reject)
 
     def _init_rtsp_server(self) -> None:
         """
@@ -61,9 +51,9 @@ class LinkStreamingDialog(QDialog):
 
         config = get_config()
 
-        label_address = QLabel("Server : ")
-        self.combobox_address = QComboBox()
-        self.combobox_address.setEditable(True)
+        label_address = BodyLabel("Server : ")
+        self.combobox_address = EditableComboBox()
+        self.combobox_address.setPlaceholderText(self.tr("Enter server address"))
 
         item_list: list = [i for i in config.video_source.values()]
         self.combobox_address.addItems(item_list)
@@ -71,8 +61,8 @@ class LinkStreamingDialog(QDialog):
         # Add input component to layout
         self.layout_input.addRow(label_address, self.combobox_address)
 
-        label_backend = QLabel("Backend : ")
-        self.combobox_backend = QComboBox()
+        label_backend = BodyLabel(self.tr("Backend : "))
+        self.combobox_backend = ComboBox()
 
         backend_list: list = [i for i in config.video_monitor_backend]
         self.combobox_backend.addItems(backend_list)

@@ -21,7 +21,7 @@ class VlcBackend(QWidget):
         self.media_player: vlc.MediaPlayer = self.instance.media_player_new()
 
         self.frame = QFrame()
-        self.frame.setMinimumSize(640, 480)
+        self.frame.setMinimumSize(480, 320)
         self.layout_main.addWidget(self.frame)
         self.media_player.set_hwnd(self.frame.winId())
 

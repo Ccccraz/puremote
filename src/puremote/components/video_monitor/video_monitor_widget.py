@@ -1,37 +1,47 @@
 from PySide6.QtCore import Slot
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QPushButton, QHBoxLayout
+from PySide6.QtWidgets import QWidget, QVBoxLayout
 
 from puremote.components.video_monitor.dialog.link_streaming_dialog import (
     LinkStreamingDialog,
 )
 from puremote.components.video_monitor.backend.gl_backend import GlBackend
+from puremote.components.card.base_card import BaseCard
+from qfluentwidgets import PrimaryPushButton, FluentIcon
 
 
-class Monitor(QWidget):
+class VideoMonitorCard(QWidget):
     def __init__(self) -> None:
         super().__init__()
         self._init_ui()
 
     def _init_ui(self):
         self.layout_main = QVBoxLayout()
-        self.layout_video = QVBoxLayout()
+        self.card = BaseCard(self.tr("Video Monitor"))
+        self.layout_main.addWidget(self.card)
         self.setLayout(self.layout_main)
+        self.layout_main.setContentsMargins(0, 0, 0, 0)
+        self.layout_main.setSpacing(0)
 
-        group = QGroupBox("Monitor")
-        group.setLayout(self.layout_video)
-        self.layout_main.addWidget(group)
-
-        self.button = QPushButton("Link to montior")
+        self.button = PrimaryPushButton(
+            FluentIcon.LINK, self.tr("Link to montior"), self
+        )
         self.button.clicked.connect(self.show_dialog)
-        self.layout_video.addWidget(self.button)
+
+        self.card.addFunctionButton([self.button])
 
     @Slot(str, str)
     def play(self, address: str, backend: str):
-        self.video_player = Backend(backend)
+        if backend == "opengl":
+            self.video_player = GlBackend()
 
-        self.video_player.player.set_media(address)
-        self.layout_video.insertWidget(self.layout_video.count() - 1, self.video_player)
-        self.video_player.player.play()
+        elif backend == "vlc":
+            from puremote.components.video_monitor.backend.vlc_backend import VlcBackend
+
+            self.video_player = VlcBackend()
+
+        self.video_player.set_media(address)
+        self.card.viewLayout.addWidget(self.video_player)
+        self.video_player.play()
 
     def _close(self):
         pass
@@ -40,41 +50,3 @@ class Monitor(QWidget):
         dialog = LinkStreamingDialog(self)
         dialog.emit_accepted.connect(self.play)
         dialog.exec()
-
-
-class Backend(QWidget):
-    def __init__(self, backend: str) -> None:
-        super().__init__()
-        self.backend = backend
-        self._init_ui()
-
-    def _init_ui(self):
-        layout = QVBoxLayout()
-        self.setLayout(layout)
-
-        layout_video = QVBoxLayout()
-        layout_btn = QHBoxLayout()
-
-        layout.addLayout(layout_video)
-        layout.addLayout(layout_btn)
-
-        if self.backend == "opengl":
-            self.video_player = GlBackend()
-
-        elif self.backend == "vlc":
-            from puremote.components.video_monitor.backend.vlc_backend import VlcBackend
-
-            self.video_player = VlcBackend()
-
-        layout_video.addWidget(self.player)
-
-        close_btn = QPushButton("Close")
-        close_btn.clicked.connect(self._close)
-        layout_btn.addWidget(close_btn)
-
-    def _close(self):
-        self.close()
-
-    @property
-    def player(self):
-        return self.video_player

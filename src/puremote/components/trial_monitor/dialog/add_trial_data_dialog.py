@@ -1,50 +1,38 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
-    QDialog,
-    QLabel,
-    QVBoxLayout,
-    QDialogButtonBox,
-    QComboBox,
-    QWidget,
     QFormLayout,
 )
 
 from puremote.config.config import get_config
+from qfluentwidgets import (
+    MessageBoxBase,
+    SubtitleLabel,
+    EditableComboBox,
+    BodyLabel,
+    ComboBox,
+)
 
 
-class AddTrialDataDialog(QDialog):
+class AddTrialDataDialog(MessageBoxBase):
     emit_accept = Signal(str, str)
 
-    def __init__(self, parent: QWidget | None = None) -> None:
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self._init_ui()
+        self.__init_ui()
 
-    def _init_ui(self) -> None:
-        self.setWindowTitle("Set status server")
+    def __init_ui(self):
+        self.titleLabel = SubtitleLabel(self.tr("Set status server"))
+        self.viewLayout.addWidget(self.titleLabel)
 
-        # Main layout of dialog
-        self.layout_main = QVBoxLayout()
         self.layout_sub = QFormLayout()
-
-        self.layout_main.addLayout(self.layout_sub)
-        self.setLayout(self.layout_main)
+        self.viewLayout.addLayout(self.layout_sub)
 
         # Create input component
         self._init_status_server()
 
-        # Create standard button box for diglog
-        q_dialog_btn = (
-            QDialogButtonBox.StandardButton.Open
-            | QDialogButtonBox.StandardButton.Cancel
-        )
-        button_box = QDialogButtonBox(q_dialog_btn)
-
-        button_box.accepted.connect(self._emit_accept)
-        button_box.accepted.connect(self.accept)
-        button_box.rejected.connect(self.reject)
-
-        # Add standard button to layout
-        self.layout_main.addWidget(button_box)
+        self.yesButton.clicked.connect(self._emit_accept)
+        self.yesButton.clicked.connect(self.accept)
+        self.cancelButton.clicked.connect(self.reject)
 
     def _init_status_server(self) -> None:
         """
@@ -53,9 +41,9 @@ class AddTrialDataDialog(QDialog):
 
         config = get_config()
 
-        label_address = QLabel("Server : ")
-        self.combobox_address = QComboBox()
-        self.combobox_address.setEditable(True)
+        label_address = BodyLabel(self.tr("Server : "))
+        self.combobox_address = EditableComboBox()
+        self.combobox_address.setPlaceholderText(self.tr("Input server address"))
 
         item_list: list = [i.values() for i in config.trial_data_source]
         self.combobox_address.addItems(item_list)
@@ -63,8 +51,8 @@ class AddTrialDataDialog(QDialog):
         # Add input component to layout
         self.layout_sub.addRow(label_address, self.combobox_address)
 
-        label_option = QLabel("Server type: ")
-        self.combobox_option = QComboBox()
+        label_option = BodyLabel(self.tr("Server type: "))
+        self.combobox_option = ComboBox()
         item_list: list = [i for i in config.trial_data_mode]
         self.combobox_option.addItems(item_list)
         self.layout_sub.addRow(label_option, self.combobox_option)
