@@ -23,6 +23,7 @@ class MainWindow(FluentWindow):
         self.setMinimumWidth(760)
         # self.setWindowIcon(QIcon(":/gallery/images/logo.png"))
         self.setWindowTitle(APP_NAME)
+        self.setMicaEffectEnabled(False)
 
         # create splash screen
         self.splashScreen = SplashScreen(self.windowIcon(), self)
@@ -36,4 +37,9 @@ class MainWindow(FluentWindow):
         QApplication.processEvents()
 
     def initNavigation(self):
-        self.addSubInterface(self.experiments_interface, FluentIcon.CAMERA, "Monitor")
+        self.addSubInterface(
+            self.experiments_interface,
+            FluentIcon.CAMERA,
+            "Monitor",
+            isTransparent=True,
+        )

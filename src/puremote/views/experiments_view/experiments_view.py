@@ -10,9 +10,6 @@ class ExperimentsInterface(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setObjectName("experiments_interface")
-        self.setStyleSheet(
-            "QWidget#experiments_interface {border: none; background:transparent}"
-        )
 
         self._init_ui()
 
@@ -24,9 +21,9 @@ class ExperimentsInterface(QWidget):
         self.layout_main.setRowStretch(1, 3)
 
         self.plotter_card = PlotterCard(self)
-        self.card_video_monitor = VideoMonitorCard()
-        self.card_session_data = BaseCard("Session Data")
-        self.card_trial_data = TrialDataCard()
+        self.card_video_monitor = VideoMonitorCard(self)
+        self.card_session_data = BaseCard("Session Data", self)
+        self.card_trial_data = TrialDataCard(self)
 
         self.layout_main.addWidget(self.plotter_card, 0, 0)
         self.layout_main.addWidget(self.card_video_monitor, 0, 1)
