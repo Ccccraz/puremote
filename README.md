@@ -4,41 +4,32 @@ puremote is a remote experiment status monitoring software designed based on RES
 
 ## install
 
-### install with uv
+I strongly recommend you to use pipx to install puremote
+
+### install with pipx
 
 ```bash
-# clone this repo
-git clone https://github.com/Ccccraz/puremote.git
-
-cd puremote
-```
-
-```bash
-# setup env
-uv sync
+# install
+pipx install puremote
 
 # run app
-uv run main
+puremote
 ```
 
 ### install with conda
-```bash
-# clone this repo
-git clone https://github.com/Ccccraz/puremote.git
-
-cd puremote
-```
 
 ```bash
-# setup env
+# create a env
 conda create -n puremote python=3.12
+
+# activate env
 conda activate puremote
 
-# install dependency
-pip install .
+# install uvicorn
+pip install puremote
 
 # run app
-python ./src/puremote/__init__.py
+puremote
 ```
 
 # Contribution
