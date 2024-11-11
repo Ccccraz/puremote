@@ -20,7 +20,7 @@ class PlotterCard(QWidget):
         self.layout_main.setContentsMargins(0, 0, 0, 0)
         self.layout_main.setSpacing(0)
 
-        self.card = BaseCard(self.tr("Figures"))
+        self.card = BaseCard(self.tr("Figures"), self)
         self.layout_main.addWidget(self.card)
 
         self.layout_figures = QVBoxLayout()
@@ -28,7 +28,7 @@ class PlotterCard(QWidget):
         button = PrimaryPushButton(self.tr("add figure"))
         button.clicked.connect(self.show_dialog)
 
-        self.card.addFunctionButton([button])
+        self.card.addFunctionButtons([button])
 
     def show_dialog(self):
         dialog = AddFigureDialog(self.parent_main)

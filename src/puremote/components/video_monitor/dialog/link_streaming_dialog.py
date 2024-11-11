@@ -1,8 +1,5 @@
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import (
-    QWidget,
-    QFormLayout,
-)
+from PySide6.QtWidgets import QWidget, QFormLayout, QFileDialog, QHBoxLayout
 
 from puremote.config.config import get_config
 
@@ -12,11 +9,13 @@ from qfluentwidgets import (
     EditableComboBox,
     BodyLabel,
     ComboBox,
+    SwitchButton,
+    PushButton,
 )
 
 
 class LinkStreamingDialog(MessageBoxBase):
-    emit_accepted = Signal(str, str)  # Return rtsp server url and backend type
+    emit_accepted = Signal(str, bool, str)  # Return rtsp server url and backend type
 
     def __init__(self, parent: QWidget | None = None) -> None:
         """Dialog for set rtsp server url and backend type
@@ -61,15 +60,29 @@ class LinkStreamingDialog(MessageBoxBase):
         # Add input component to layout
         self.layout_input.addRow(label_address, self.combobox_address)
 
-        label_backend = BodyLabel(self.tr("Backend : "))
-        self.combobox_backend = ComboBox()
+        label_record = BodyLabel(self.tr("Need record : "))
+        self.switch_record = SwitchButton()
+        self.switch_record.checkedChanged.connect(self.get_target_folder)
 
-        backend_list: list = [i for i in config.video_monitor_backend]
-        self.combobox_backend.addItems(backend_list)
+        self.layout_input.addRow(label_record, self.switch_record)
 
-        self.layout_input.addRow(label_backend, self.combobox_backend)
+        self.folder_layout = QHBoxLayout()
+        self.folder = EditableComboBox()
+        self.folder.setPlaceholderText(self.tr("Folder for store video streaming"))
+        self.get_folder_button = PushButton(self.tr("Browse"))
+        self.get_folder_button.clicked.connect(self._get_floders)
 
     def _emit_accept(self) -> None:
         address = self.combobox_address.currentText()
-        backend = self.combobox_backend.currentText()
-        self.emit_accepted.emit(address, backend)
+        need_record = self.switch_record.isChecked()
+        folder = self.folder.currentText()
+        self.emit_accepted.emit(address, need_record, folder)
+
+    def get_target_folder(self):
+        self.folder_layout.addWidget(self.folder, 70)
+        self.folder_layout.addWidget(self.get_folder_button, 30)
+        self.viewLayout.addLayout(self.folder_layout)
+
+    def _get_floders(self):
+        folder = QFileDialog.getExistingDirectory(self, self.tr("Select Folder"))
+        self.folder.addItem(folder)

@@ -60,11 +60,17 @@ class BaseCard(SimpleCardWidget):
     def setTitle(self, title: str):
         self.headerLabel.setText(title)
 
-    def addFunctionButton(self, buttons: list):
+    def addFunctionButton(self, button):
+        self.toolbar_layout.addWidget(button)
+
+    def addFunctionButtons(self, buttons: list):
         for button in buttons:
             self.toolbar_layout.addWidget(button)
 
         self.toolbar_layout.addStretch(1)
+
+    def removeFunctionButton(self, button):
+        self.toolbar_layout.removeWidget(button)
 
     def _postInit(self):
         pass

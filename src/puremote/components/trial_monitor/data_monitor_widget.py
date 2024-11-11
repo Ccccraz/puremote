@@ -10,13 +10,13 @@ from qfluentwidgets import PrimaryPushButton, FluentIcon
 
 
 class TrialDataCard(QWidget):
-    def __init__(self) -> None:
+    def __init__(self, parent=None) -> None:
         """Trial data monitor widget"""
-        super().__init__()
+        super().__init__(parent)
         self._init_ui()
 
     def _init_ui(self) -> None:
-        self.card = BaseCard("Trial data monitor")
+        self.card = BaseCard("Trial data monitor", self)
         self.main_layout = QHBoxLayout(self)
         self.main_layout.addWidget(self.card)
         self.setLayout(self.main_layout)
@@ -26,7 +26,7 @@ class TrialDataCard(QWidget):
         button = PrimaryPushButton(FluentIcon.ADD, self.tr("Add data"), self)
         button.clicked.connect(self.show_status)
 
-        self.card.addFunctionButton([button])
+        self.card.addFunctionButtons([button])
 
     @Slot(str, str)
     def add_data(self, address: str, option: str) -> None:
