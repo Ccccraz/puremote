@@ -1,3 +1,4 @@
+from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QWidget, QHBoxLayout
 from PySide6.QtCore import Slot
 
@@ -10,7 +11,7 @@ from qfluentwidgets import PrimaryPushButton, FluentIcon
 
 
 class TrialDataCard(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent) -> None:
         """Trial data monitor widget"""
         super().__init__(parent)
         self._init_ui()
@@ -26,16 +27,33 @@ class TrialDataCard(QWidget):
         button = PrimaryPushButton(FluentIcon.ADD, self.tr("Add data"), self)
         button.clicked.connect(self.show_status)
 
-        self.card.addFunctionButtons([button])
+        button_close = PrimaryPushButton(FluentIcon.CLOSE, self.tr("Close"), self)
+        button_close.clicked.connect(self.stop)
+
+        self.card.addFunctionButtons([button, button_close])
 
     @Slot(str, str)
     def add_data(self, address: str, option: str) -> None:
-        table = TrialDataView()
-        table.init_listener(address, option)
+        self.table = TrialDataView()
+        self.table.init_listener(address, option)
 
-        self.card.viewLayout.addWidget(table)
+        self.card.viewLayout.addWidget(self.table)
+        self.card.viewLayout.setContentsMargins(10, 10, 10, 10)
+        self.card.viewLayout.setSpacing(0)
 
     def show_status(self) -> None:
-        dialog = AddTrialDataDialog(self)
+        dialog = AddTrialDataDialog(self.window())
         dialog.emit_accept.connect(self.add_data)
         dialog.exec()
+
+    def stop(self):
+        try:
+            self.table.stop()
+            self.card.viewLayout.removeWidget(self.table)
+            self.table.deleteLater()
+        except AttributeError:
+            pass
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        self.stop()
+        return super().closeEvent(event)

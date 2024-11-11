@@ -1,3 +1,4 @@
+from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QWidget, QGridLayout
 
 from puremote.components.card.base_card import BaseCard
@@ -7,7 +8,7 @@ from puremote.components.video_monitor.video_monitor_widget import VideoMonitorC
 
 
 class ExperimentsInterface(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent):
         super().__init__(parent=parent)
         self.setObjectName("experiments_interface")
 
@@ -31,3 +32,6 @@ class ExperimentsInterface(QWidget):
         self.layout_main.addWidget(self.card_trial_data, 1, 1)
 
         self.setLayout(self.layout_main)
+
+    def stop(self):
+        self.card_trial_data.stop()

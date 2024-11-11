@@ -43,3 +43,7 @@ class MainWindow(FluentWindow):
             "Monitor",
             isTransparent=True,
         )
+
+    def closeEvent(self, e):
+        self.experiments_interface.stop()
+        return super().closeEvent(e)

@@ -28,6 +28,7 @@ class RecordStreamingDialog(Dialog):
 
     def _init_ui(self) -> None:
         """Initialize ui"""
+        self.setTitleBarVisible(False)
         self.setFixedSize(640, 320)
 
         self.layout_input = QHBoxLayout()

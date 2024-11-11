@@ -24,6 +24,7 @@ class PlotterCard(QWidget):
         self.layout_main.addWidget(self.card)
 
         self.layout_figures = QVBoxLayout()
+        self.card.viewLayout.addLayout(self.layout_figures)
 
         button = PrimaryPushButton(self.tr("add figure"))
         button.clicked.connect(self.show_dialog)

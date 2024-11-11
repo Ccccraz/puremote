@@ -4,17 +4,15 @@ from PySide6.QtWidgets import QWidget, QFormLayout, QFileDialog, QHBoxLayout
 from puremote.config.config import get_config
 
 from qfluentwidgets import (
-    MessageBoxBase,
-    SubtitleLabel,
     EditableComboBox,
     BodyLabel,
-    ComboBox,
     SwitchButton,
     PushButton,
+    Dialog,
 )
 
 
-class LinkStreamingDialog(MessageBoxBase):
+class LinkStreamingDialog(Dialog):
     emit_accepted = Signal(str, bool, str)  # Return rtsp server url and backend type
 
     def __init__(self, parent: QWidget | None = None) -> None:
@@ -24,18 +22,16 @@ class LinkStreamingDialog(MessageBoxBase):
             parent (QWidget): parent widget
             config (dict): configuration
         """
-        super().__init__(parent)
+        super().__init__(self.tr("Link Streaming"), "", parent)
         self._init_ui()
 
     def _init_ui(self) -> None:
         """Initialize ui"""
-
-        self.titleLabel = SubtitleLabel(self.tr("Link Streaming"))
-        self.viewLayout.addWidget(self.titleLabel)
-
+        self.setTitleBarVisible(False)
+        self.setFixedSize(640, 320)
         self.layout_input = QFormLayout()
 
-        self.viewLayout.addLayout(self.layout_input)
+        self.textLayout.addLayout(self.layout_input)
         # Create input component
         self._init_rtsp_server()
 
@@ -81,7 +77,7 @@ class LinkStreamingDialog(MessageBoxBase):
     def get_target_folder(self):
         self.folder_layout.addWidget(self.folder, 70)
         self.folder_layout.addWidget(self.get_folder_button, 30)
-        self.viewLayout.addLayout(self.folder_layout)
+        self.textLayout.addLayout(self.folder_layout)
 
     def _get_floders(self):
         folder = QFileDialog.getExistingDirectory(self, self.tr("Select Folder"))

@@ -5,27 +5,26 @@ from PySide6.QtWidgets import (
 
 from puremote.config.config import get_config
 from qfluentwidgets import (
-    MessageBoxBase,
-    SubtitleLabel,
     EditableComboBox,
     BodyLabel,
     ComboBox,
+    Dialog,
 )
 
 
-class AddTrialDataDialog(MessageBoxBase):
+class AddTrialDataDialog(Dialog):
     emit_accept = Signal(str, str)
 
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__(self.tr("Add trial data"), "", parent)
         self.__init_ui()
 
     def __init_ui(self):
-        self.titleLabel = SubtitleLabel(self.tr("Set status server"))
-        self.viewLayout.addWidget(self.titleLabel)
+        self.setTitleBarVisible(False)
+        self.setFixedSize(640, 320)
 
         self.layout_sub = QFormLayout()
-        self.viewLayout.addLayout(self.layout_sub)
+        self.textLayout.addLayout(self.layout_sub)
 
         # Create input component
         self._init_status_server()

@@ -10,6 +10,10 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from qfluentwidgets import StateToolTip
+
+from puremote.common.logger import logger
+
 
 class VlcBackend(QWidget):
     def __init__(
@@ -22,12 +26,13 @@ class VlcBackend(QWidget):
         super().__init__(parent)
         self.need_record = record
         self.target_floder = target_floder
+        self.playing = False
+        self.recording = False
 
         self.layout_main = QVBoxLayout(self)
         self.setLayout(self.layout_main)
         self.address = address
         self._init_vlc_instance()
-        self.recording = False
 
     def _init_vlc_instance(self):
         self.instance: vlc.Instance = vlc.Instance()  # type: ignore
@@ -41,12 +46,12 @@ class VlcBackend(QWidget):
         self.media_player.set_hwnd(self.frame.winId())
 
         self.play()
+        self.playing = True
 
     def play(self) -> None:
         self.media_player.play()
 
         if self.need_record:
-            print("record")
             self.record(self.target_floder)
 
     def record(self, target_floder: str) -> None:
@@ -61,13 +66,34 @@ class VlcBackend(QWidget):
         self.media_recorder.set_media(self.media_record)
         self.media_recorder.play()
         self.recording = True
+        logger.info(f"record to {target_file_new}")
 
-    def stop(self) -> None:
+        self.stateTooltip = StateToolTip(
+            self.tr("Recording"), str(target_file_new), self.window()
+        )
+        self.stateTooltip.move(self.stateTooltip.getSuitablePos())
+        self.stateTooltip.show()
+
+    def stop_play(self) -> None:
+        if self.playing:
+            self.media.release()
+            self.media_player.stop()
+            self.playing = False
+        else:
+            logger.warning("not playing")
+
+    def stop_record(self) -> None:
         if self.recording:
             self.media_record.release()
             self.media_recorder.stop()
-        self.media.release()
-        self.media_player.stop()
+            self.recording = False
+            logger.info("stop record")
+            assert self.stateTooltip is not None
+            self.stateTooltip.setContent(self.tr("Stop Recording"))
+            self.stateTooltip.setState(True)
+            self.stateTooltip = None
+        else:
+            logger.warning("not recording")
 
 
 if __name__ == "__main__":

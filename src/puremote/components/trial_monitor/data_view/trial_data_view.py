@@ -4,7 +4,6 @@ from threading import Thread
 
 from puremote.shared.web_requests.http_listener import HttpListener, HttpListenerSse
 from puremote.models.trail_data import TrialDataModel, TrialData
-from puremote.components.card.base_card import BaseCard
 
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QApplication
@@ -19,10 +18,14 @@ class TrialDataView(QWidget):
         super().__init__()
         self.layout_main = QVBoxLayout()
         self.setLayout(self.layout_main)
+        self.layout_main.setContentsMargins(0, 0, 0, 0)
+        self.layout_main.setSpacing(0)
 
         self.table = TableWidget()
         self.table.setBorderVisible(True)
         self.table.setBorderRadius(8)
+        self.table.verticalHeader().setVisible(False)
+        self.table.horizontalHeader().font().setPointSize(16)
 
         self.table.setRowCount(10)
         self.table.setColumnCount(10)
@@ -57,6 +60,9 @@ class TrialDataView(QWidget):
             trial_data = TrialData()
             trial_data.add_data(self.address, self.data_model)
             self.table = TableView()
+            self.table.setBorderVisible(True)
+            self.table.setBorderRadius(8)
+            self.table.verticalHeader().setVisible(False)
             self.table.setModel(self.data_model)
             self.layout_main.addWidget(self.table)
             self._is_init = True

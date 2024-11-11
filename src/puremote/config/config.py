@@ -39,7 +39,6 @@ class Config(BaseModel):
     """
 
     video_source: dict[str, str] = {}
-    video_monitor_backend: list[str] = ["opengl", "vlc"]
     trial_data_source: list[dict[str, str]] = []
     trial_data_mode: list[str] = ["polling", "sse"]
     figure: list[Figure] = []
@@ -74,7 +73,6 @@ def load_config():
     if not os.path.exists(CONFIG_FILE_PATH):
         print("Configuration file not found")
         create_default_config()
-        return
 
     # Check if the file is readable
     if not os.access(CONFIG_FILE_PATH, os.R_OK):
@@ -112,10 +110,5 @@ def set_config():
 
 if __name__ == "__main__":
     load_config()
-
-    print(get_config().model_dump_json(indent=4))
-
-    get_config().video_monitor_backend = ["vlc", "opengl"]
-    set_config()
 
     print(get_config().model_dump_json(indent=4))

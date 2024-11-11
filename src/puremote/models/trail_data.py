@@ -4,6 +4,7 @@ from PySide6.QtCore import (
     QModelIndex,
     QPersistentModelIndex,
 )
+from PySide6.QtGui import QFont
 from puremote.shared.base.singleton_base import SingletonMeta
 
 
@@ -31,6 +32,9 @@ class TrialDataModel(QAbstractTableModel):
         if role == Qt.ItemDataRole.TextAlignmentRole:
             return Qt.AlignmentFlag.AlignVCenter + Qt.AlignmentFlag.AlignHCenter
 
+        if role == Qt.ItemDataRole.FontRole:
+            return QFont(["Arial"], pointSize=10)
+
         return None
 
     def headerData(
@@ -42,6 +46,11 @@ class TrialDataModel(QAbstractTableModel):
         if role == Qt.ItemDataRole.DisplayRole:
             if orientation == Qt.Orientation.Horizontal:
                 return list(self._data[0].keys())[section]
+
+        if role == Qt.ItemDataRole.FontRole:
+            font = QFont(["Arial"], pointSize=13)
+            font.setBold(True)
+            return font
 
         return None
 
