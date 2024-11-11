@@ -1,11 +1,13 @@
 import sys
-from PySide6 import QtWidgets
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import Qt
 
 from puremote.views.main_view import MainWindow
 
 
 def main() -> None:
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
+    app.setAttribute(Qt.ApplicationAttribute.AA_DontCreateNativeWidgetSiblings)
 
     window = MainWindow()
     window.show()
